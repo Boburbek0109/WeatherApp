@@ -19,7 +19,7 @@ protocol WeatherProviding {
 final class WeatherService: WeatherProviding {
     
     func fetchWeather(lat: Double, lon: Double) async throws -> WeatherData {
-        let apiKey = "YOUR_API_KEY_HERE"
+        let apiKey = Secrets.openWeatherApiKey
         let forecastURLStr = "https://api.openweathermap.org/data/2.5/forecast?lat=\(lat)&lon=\(lon)&units=metric&appid=\(apiKey)"
         let weatherURLStr = "https://api.openweathermap.org/data/2.5/weather?lat=\(lat)&lon=\(lon)&units=metric&appid=\(apiKey)"
         
@@ -63,9 +63,7 @@ final class WeatherService: WeatherProviding {
                 condiction: forecast.weather.first?.description,
                 timezoneOffset: currentResponse.timezone
             )
-            
         }
-
         
         let groupedForecast: [Date: [ForecastItem]] = Dictionary(grouping: forecastResponse.list) { item in
             cityCalendar.startOfDay(for: Date(timeIntervalSince1970: item.dt))
