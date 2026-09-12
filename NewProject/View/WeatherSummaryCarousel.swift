@@ -6,10 +6,16 @@
 //
 
 import SwiftUI
+import CoreLocation
 
 struct WeatherSummaryCarousel: View{
     
     let weatherPages: [WeatherData]
+    let loadState: WeatherLoadState
+    let authorizationStatus: CLAuthorizationStatus
+    let locationErrorMessage: String?
+    let retryAction: () -> Void
+    
     @Binding var selectedPage: Int
     
     private var canSwipe: Bool{
@@ -23,13 +29,21 @@ struct WeatherSummaryCarousel: View{
                     .glassEffect(.clear, in: .rect(cornerRadius: 20))
                 
                 if weatherPages.isEmpty {
-                    WeatherSummary(weatherData: nil)
+                    WeatherSummary(weatherData: nil,
+                                   loadState: loadState,
+                                   authorizationStatus: authorizationStatus,
+                                   locationErrorMessage: locationErrorMessage,
+                                   retryAction: retryAction)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 14)
                 } else {
                     TabView(selection: $selectedPage) {
                         ForEach(Array(weatherPages.enumerated()), id: \.element.id) { index, weatherData in
-                            WeatherSummary(weatherData: weatherData)
+                            WeatherSummary(weatherData: weatherData,
+                                           loadState: loadState,
+                                           authorizationStatus: authorizationStatus,
+                                           locationErrorMessage: locationErrorMessage,
+                                           retryAction: retryAction)
                                 .padding(.horizontal, 18)
                                 .padding(.vertical, 14)
                                 .tag(index)
@@ -58,20 +72,24 @@ struct WeatherSummaryCarousel: View{
 }
 
 #Preview {
-    WeatherSummaryCarousel(weatherPages: [
-        WeatherData (locationName: "Seoul",
-                     temperature: 24,
-                     condiction: "clear",
-                     humidity: 72,
-                     windSpeed: 4.2,
-                     rainVolume: 0,
-                     highTemp: 26,
-                     lowTemp: 15,
-                     hourlyForecast: [],
-                     dailyForecast: [],
-                     timezoneOffset: 32400
-                    )
-        
-    ], selectedPage: .constant(0)
+    WeatherSummaryCarousel(
+        weatherPages: [
+            WeatherData (locationName: "Seoul",
+                         temperature: 24,
+                         condiction: "clear",
+                         humidity: 72,
+                         windSpeed: 4.2,
+                         rainVolume: 0,
+                         highTemp: 26,
+                         lowTemp: 15,
+                         hourlyForecast: [],
+                         dailyForecast: [],
+                         timezoneOffset: 32400)
+        ],
+        loadState: .loaded,
+        authorizationStatus: .authorizedWhenInUse,
+        locationErrorMessage: nil,
+        retryAction: {},
+        selectedPage: .constant(0)
     )
 }

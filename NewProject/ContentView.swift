@@ -12,7 +12,7 @@ import SwiftData
 @MainActor
 struct ContentView: View {
 
-    @StateObject private var locationManager = LocationManager()
+    @StateObject private var locManager = LocationManager()
     @StateObject private var weatherVM = WeatherViewModel()
     @StateObject private var locationStore = LocationDataStore()
     
@@ -40,8 +40,12 @@ struct ContentView: View {
                     VStack(alignment: .center, spacing: 20) {
                         WeatherSummaryCarousel(
                             weatherPages: weatherVM.weatherPages,
+                            loadState: weatherVM.loadState,
+                            authorizationStatus: locManager.authorizationStatus,
+                            locationErrorMessage: locManager.locationErrorMessage,
+                            retryAction: { Task { await weatherVM.retryWeather() } },
                             selectedPage: $weatherVM.selectedWeatherPage)
-
+                        
                         WeatherMetricPanel(weatherData: selectedWeatherData)
                         
                         HStack{
@@ -70,22 +74,18 @@ struct ContentView: View {
                         Spacer()
                     }
                 }
-                .refreshable {
-                    savedCityStore.clearSavedCity()
-                    await weatherVM.refreshWeather()
-                }
-                
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         cityMenu
                     }
                 }
                 .onAppear {
-                    locationManager.requestLocation()
+                    locManager.requestLocation()
                 }
-                .onReceive(locationManager.$location) { location in
+                .onReceive(locManager.$location) { location in
                     guard let location else { return }
                     guard weatherVM.weather == nil else { return}
+                    
                     Task{
                         await weatherVM.loadWeather(location: location)
                     }

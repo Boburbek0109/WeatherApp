@@ -9,6 +9,12 @@ import Foundation
 import Combine
 import CoreLocation
 
+enum WeatherLoadState{
+    case idle
+    case loading
+    case loaded
+    case failed(String)
+}
 
 final class WeatherViewModel: ObservableObject {
     
@@ -18,6 +24,7 @@ final class WeatherViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var currentLocation: CLLocation?
     @Published var selectedCityLocation: LocationData?
+    @Published private(set) var loadState: WeatherLoadState = .idle
     
     private var service: WeatherProviding
     
@@ -32,6 +39,8 @@ final class WeatherViewModel: ObservableObject {
     func loadWeather(location: CLLocation) async {
         let shouldKeepSelectedCityPage = weather == nil && selectedCityWeather != nil && selectedWeatherPage == 0
         currentLocation = location
+        loadState = .loading
+        errorMessage = nil
         
         do {
             weather = try await service.fetchWeather(
@@ -40,35 +49,46 @@ final class WeatherViewModel: ObservableObject {
             if shouldKeepSelectedCityPage {
                 selectedWeatherPage = 1
             }
-            errorMessage = nil
+            loadState = .loaded
         } catch {
-            errorMessage = error.localizedDescription
+            let message = error.localizedDescription
+            
+            errorMessage = message
+            loadState = .failed(message)
         }
     }
     
     func addCityWeather(_ location: LocationData) async {
         selectedCityLocation = location
+        loadState = .loading
+        errorMessage = nil
         
         do {
             let weatherData = try await service.fetchWeather(
                 lat: location.latitude,
                 lon: location.longitude
             )
+            
             selectedCityWeather = weatherData.renamed(to: location.name)
             selectedWeatherPage = weather == nil ? 0 : 1
-            errorMessage = nil
+            loadState = .loaded
+            
         } catch {
-            errorMessage = error.localizedDescription
+            let message = error.localizedDescription
+            
+            errorMessage = message
+            loadState = .failed(message)
         }
     }
     
-    func refreshWeather() async {
-        selectedCityWeather = nil
-        selectedCityLocation = nil
-        selectedWeatherPage = 0
-        
-        if let currentLocation {
+    func retryWeather() async {
+        if selectedWeatherPage == 1,
+           let selectedCityLocation{
+            await addCityWeather(selectedCityLocation)
+        } else if let currentLocation {
             await loadWeather(location: currentLocation)
+        } else if let selectedCityLocation {
+            await addCityWeather(selectedCityLocation)
         }
     }
     
