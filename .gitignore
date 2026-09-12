@@ -9,4 +9,4 @@ xcuserdata/
 
 # Local secrets
 Secrets.xcconfig
-NewProject/Models/Secrets/Secrets.swift
+WeatherApp/Models/Secrets/Secrets.swift
