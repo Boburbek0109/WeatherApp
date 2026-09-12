@@ -55,7 +55,9 @@ extension WeatherData{
     }
 
     var windSpeedText: String {
-        "\(windSpeed.formatted(.number.precision(.fractionLength(1)))) km/h"
+        let windSpeedInKmh = windSpeed * 3.6
+        
+        return "\(windSpeedInKmh.formatted(.number.precision(.fractionLength(1)))) km/h"
     }
 
     var rainVolumeText: String {
