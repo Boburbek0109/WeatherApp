@@ -2,7 +2,7 @@
 
 A SwiftUI weather application that shows current weather, hourly forecast, and forecast details for the user's current location and selected cities.
 
-##Demo
+## Demo
 
 https://github.com/user-attachments/assets/3129c5ea-70c0-4223-8968-ce98023b3d87
 
@@ -42,7 +42,19 @@ The main goal was not only to build a weather UI, but also to understand how dif
 - SwiftData
 - JSONDecoder
 
-Helpful resource: 
+## Setup
+
+1. Get a free API key from OpenWeather.
+2. Create `WeatherApp/Models/Secrets/Secrets.swift`.
+3. Add:
+```swift
+enum Secrets {
+    static let openWeatherApiKey = "YOUR_API_KEY"
+}
+```
+4. Build and run the project in Xcode.
+
+## Helpful resource: 
 
 - https://medium.com/better-programming/simple-weather-app-with-swiftui-ac41200a9d4d
 - https://www.youtube.com/@seanallen
