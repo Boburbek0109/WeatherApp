@@ -16,6 +16,7 @@ enum WeatherLoadState{
     case failed(String)
 }
 
+@MainActor
 final class WeatherViewModel: ObservableObject {
     
     @Published var weather: WeatherData?
@@ -28,7 +29,7 @@ final class WeatherViewModel: ObservableObject {
     
     private var service: WeatherProviding
     
-    init(service: WeatherProviding = WeatherService()) {
+    init(service: WeatherProviding = WeatherService()){
         self.service = service
     }
     

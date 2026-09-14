@@ -50,21 +50,8 @@ struct WeatherSummary: View{
                 case .loading:
                     ProgressView()
                         .controlSize(.small)
-
-                case .failed(let message):
-                    Label("Update failed", systemImage: "wifi.slash")
-                        .font(.caption)
                     
-                    Text(message)
-                        .font(.caption2)
-                        .multilineTextAlignment(.center)
-                    
-                    Button("Try Again"){
-                        retryAction()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    
-                case .idle, .loaded:
+                case .idle, .loaded, .failed(_):
                     EmptyView()
                 }
                 

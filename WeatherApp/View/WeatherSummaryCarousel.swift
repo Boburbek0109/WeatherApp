@@ -18,6 +18,15 @@ struct WeatherSummaryCarousel: View{
     
     @Binding var selectedPage: Int
     
+    private var hasLoadError: Bool{
+        switch loadState {
+        case .failed(_):
+            return true
+        default:
+            return false
+        }
+    }
+    
     private var canSwipe: Bool{
         weatherPages.count > 1
     }
@@ -50,7 +59,29 @@ struct WeatherSummaryCarousel: View{
                         }
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
-                    .disabled(!canSwipe)
+                    .blur(radius: hasLoadError ? 5 : 0)
+                    .overlay{
+                        if hasLoadError{
+                            VStack(spacing: 12){
+                                Image(systemName: "wifi.slash")
+                                    .font(.system(size: 42))
+                                
+                                Text("No internet connected")
+                                    .font(.title3)
+                                
+                                Button{
+                                    retryAction()
+                                } label: {
+                                    Text("Try Again")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 24)
+                                        .padding(.vertical, 12)
+                                }
+                                .glassEffect(.clear, in: Capsule())
+                            }
+                        }
+                    }
                 }
             }
             .frame(maxWidth: .infinity)
